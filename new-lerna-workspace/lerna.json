@@ -4,6 +4,6 @@
   "packages": [
     "services/*"
   ],
-  "npmClient": "npm"
+  "npmClient": "npm",
+  "hoist": "true"
 }
-
