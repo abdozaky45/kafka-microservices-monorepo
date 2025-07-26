@@ -1,0 +1,10 @@
+import { Router } from "express";
+import { UserRepository } from "../../repositories/user/user";
+import { UserService } from "../../services/user/user-service";
+import { UserController } from "../../controllers/user/user-controller";
+const userRepository = new UserRepository();
+const userService = new UserService(userRepository);
+const userController = new UserController(userService);
+const userRouter = Router();
+userRouter.post("/create", userController.createUser);
+export default userRouter;

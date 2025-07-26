@@ -1,0 +1,50 @@
+services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.5.0
+    container_name: zookeeper
+    ports:
+      - "2181:2181"
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+      ZOOKEEPER_SYNC_LIMIT: 2
+
+  kafka:
+    image: confluentinc/cp-kafka:7.5.0
+    container_name: kafka
+    ports:
+      - "9092:9092"
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+  admin-system:
+    build: ./services/admin-system
+    ports:
+      - "3001:3000"
+    depends_on:
+      - kafka
+    environment:
+      KAFKA_BROKER: kafka:9092  
+
+  notification-system:
+    build: ./services/notification-system
+    ports:
+      - "3002:3000"
+    depends_on:
+      - kafka
+    environment:
+      KAFKA_BROKER: kafka:9092
+
+  user-system:
+    build: ./services/user-system
+    ports:
+      - "3003:3000"
+    depends_on:
+      - kafka
+    environment:
+      KAFKA_BROKER: kafka:9092
