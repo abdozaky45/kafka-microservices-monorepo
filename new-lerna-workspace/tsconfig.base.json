@@ -5,7 +5,8 @@
  "paths": {
   "@admin/*": ["services/admin-system/src/*"],
   "@user/*": ["services/user-system/src/*"],
-  "@notification/*": ["services/notification-system/src/*"]
+  "@notification/*": ["services/notification-system/src/*"],
+  "@shared/kafka": ["services/shared/kafka/src/index.ts"],
 },
     "typeRoots": ["./node_modules/@types", "../node_modules/@types"],
     "esModuleInterop": true,
