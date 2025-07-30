@@ -1,1 +1,1 @@
-export { createKafkaClient } from "./kafka-client";
+export * from "./kafka-client";
