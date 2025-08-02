@@ -5,7 +5,7 @@
   "scripts": {
     "build": "npx tsc",
     "start": "node dist/server.js",
-    "dev": "nodemon --exec npx ts-node src/server.ts",
+   "dev": "nodemon --exec ts-node -r tsconfig-paths/register src/server.ts",
     "test": "npm run build && jasmine"
   },
   "dependencies": {

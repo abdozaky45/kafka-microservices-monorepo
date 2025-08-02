@@ -1,7 +1,11 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "rootDir": "./src",
+    
+ "baseUrl": "./services/user-system/src",
+    "paths": {
+      "@shared/kafka/*": ["../../shared/kafka/src/*"]
+    },
     "outDir": "./dist"
   },
   "include": ["src/**/*"]
