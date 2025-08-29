@@ -2,7 +2,7 @@ import { Kafka, Producer, Consumer, EachMessagePayload, Message } from "kafkajs"
 export class KafkaClient {
     private kafka: Kafka;
     private producer: Producer | null = null;
-    private consumer: Consumer | null = null;
+    private consumer: Map<string, Consumer> = new Map()
     constructor(private clientId: string, private brokers: string[] = [process.env.KAFKA_BROKERS || 'localhost:9092']) {
         this.kafka = new Kafka({
             clientId: this.clientId,
@@ -24,13 +24,17 @@ export class KafkaClient {
         })
     }
     async startConsumer(topic: string, groupId: string, onMessage: (payload: EachMessagePayload) => Promise<void>) {
-        if (!this.consumer) {
-            this.consumer = this.kafka.consumer({ groupId });
-            await this.consumer.connect();
-            await this.consumer.subscribe({ topic, fromBeginning: true });
-            console.log("Consumer connected");
+        if (this.consumer.has(groupId)) {
+            console.log(`⚠️ Consumer with groupId "${groupId}" already exists`);
+            return;
         }
-        await this.consumer.run({
+       
+        const consumer = this.kafka.consumer({ groupId });
+        await consumer.connect();
+        await consumer.subscribe({ topic, fromBeginning: true });
+        console.log("Consumer connected");
+        
+        await consumer.run({
             eachMessage: async (payload: EachMessagePayload) => {
                 try {
                     await onMessage(payload);
@@ -38,7 +42,8 @@ export class KafkaClient {
                     console.error("Error processing message:", error);
                 }
             }
-        })
+        });
+        this.consumer.set(groupId, consumer);
     }
     async disconnect(): Promise<void> {
         if (this.producer) {
@@ -46,8 +51,10 @@ export class KafkaClient {
             console.log("Producer disconnected");
         }
         if (this.consumer) {
-            await this.consumer.disconnect();
-            console.log("Consumer disconnected");
+           for (const [groupId, consumer] of this.consumer.entries()) {
+            await consumer.disconnect();
+            console.log(`Consumer with groupId "${groupId}" disconnected`);
+        }
         }
     }
 }
